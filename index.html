@@ -6,6 +6,8 @@
         <title>Chartbeat Dashboard</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="google-signin-client_id">
+        <meta name="google-signin-scope" content="https://www.googleapis.com/auth/analytics.readonly">
         <link rel="stylesheet" href="css/main.css">
         <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,800' rel='stylesheet' type='text/css'>
 
@@ -59,16 +61,43 @@
             </table>
         </div>
         <div class="ga-container">
-            <h1>Yesterday by the numbers</h1>
-            <button id="auth-button" hidden>Authorize</button>
-            <table>
-                <colgroup>
-                    <col class="label">
-                    <col class="stat">
-                </colgroup>
-            </table>
+            <h1>Yesterday at a glance</h1>
+            <div class="g-signin2" data-onsuccess="queryReports"></div>
+            <div class="ga-content">
+                <div class="two-up">
+                    <div class="label">Pageviews</div>
+                    <div class="story" id="yesterdays-pageviews"></div>
+                </div>
+                <div class="two-up">
+                    <div class="label">Avg. Duration</div>
+                    <div class="story" id="yesterdays-duration"></div>
+                </div>
+                <div class="label">Top Story</div>
+                <div class="story" id="yesterdays-top-story"></div>
+                <div class="label">Top Gallery</div>
+                <div class="story" id="yesterdays-top-gallery"></div>
+                <div class="label">Top Search</div>
+                <div class="story" id="yesterdays-top-search"></div>
+            </div>
+            <h1>Today at a glance</h1>
+            <div class="ga-content">
+                <div class="two-up">
+                    <div class="label">Pageviews</div>
+                    <div class="story" id="todays-pageviews"></div>
+                </div>
+                <div class="two-up">
+                    <div class="label">Avg. Duration</div>
+                    <div class="story" id="todays-duration"></div>
+                </div>
+                <div class="label">Top Story</div>
+                <div class="story" id="todays-top-story"></div>
+                <div class="label">Top Gallery</div>
+                <div class="story" id="todays-top-gallery"></div>
+                <div class="label">Top Search</div>
+                <div class="story" id="todays-top-search"></div>
+            </div>
         </div>
         <script src="js/min/main-min.js"></script>
-        <script src="https://apis.google.com/js/client.js?onload=authorize"></script>
+        <script src="https://apis.google.com/js/client:platform.js"></script>
     </body>
 </html>
