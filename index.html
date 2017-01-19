@@ -3,18 +3,46 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
+        <title>Chartbeat Dashboard</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-        <link rel="apple-touch-icon" href="apple-touch-icon.png">
         <link rel="stylesheet" href="css/main.css">
-        <link rel="stylesheet" href="https://cdn.iconmonstr.com/1.0.0/css/iconmonstr-iconic-font.min.css">
         <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,800' rel='stylesheet' type='text/css'>
 
     </head>
     <body>
-        <div class="container">
-            <div class="numbers"></div>
+        <div class="cb-container">
+            <div class="numbers">
+                <table>
+                    <colgroup>
+                        <col class="numbers-col">
+                        <col class="numbers-col">
+                        <col class="numbers-col">
+                    </colgroup>
+                    <tbody>
+                        <tr class="label-row">
+                            <td class="label-cell">Readers</td>
+                            <td class="label-cell">Desktop</td>
+                            <td class="label-cell">Search</td>
+                        </tr>
+                        <tr class="data-row">
+                            <td class="readers data-cell">0</td>
+                            <td class="desktop data-cell">0%</td>
+                            <td class="search data-cell">0</td>
+                        </tr>
+                        <tr class="label-row">
+                            <td class="label-cell">Engaged</td>
+                            <td class="label-cell">Mobile</td>
+                            <td class="label-cell">Social</td>
+                        </tr>
+                        <tr class="data-row">
+                            <td class="engaged data-cell">0:00</td>
+                            <td class="mobile data-cell">0%</td>
+                            <td class="social data-cell">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <table class="pages">
                 <thead>
                     <tr>
@@ -30,6 +58,17 @@
                 <tbody></tbody>
             </table>
         </div>
+        <div class="ga-container">
+            <h1>Yesterday by the numbers</h1>
+            <button id="auth-button" hidden>Authorize</button>
+            <table>
+                <colgroup>
+                    <col class="label">
+                    <col class="stat">
+                </colgroup>
+            </table>
+        </div>
         <script src="js/min/main-min.js"></script>
+        <script src="https://apis.google.com/js/client.js?onload=authorize"></script>
     </body>
 </html>

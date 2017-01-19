@@ -13,14 +13,14 @@ body {
 
 body, html {
 	width: 1080px;
-	height: 960px;
-	overflow: hidden;
+	height: 1920px;
+	// overflow: hidden;
 	position: relative;
 }
 
-.container {
+.cb-container {
 	width: 100%;
-	height: 100%;
+	height: 50%;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -29,6 +29,44 @@ body, html {
 	.numbers {
 		height: 200px;
 		background-color: #1F3442;
+
+		table {
+			border-collapse: collapse;
+			border-spacing: 0px;
+		}
+
+		// .label-col {
+		// 	width: 100px;
+		// }
+		// .data-col {
+		// 	width: 260px;
+		// }
+		.numbers-col {
+			width: 360px;
+		}
+		tr {
+			// height: 100px;
+		}
+		.data-row {
+			height: 75px;
+			vertical-align: top;
+		}
+		.label-row {
+			height: 20px;
+			vertical-align: bottom;
+		}
+		.label-cell {
+			text-align: center;
+			text-transform: uppercase;
+			color: #9dafbc;
+			font-weight: 400;
+		}
+		.data-cell {
+			text-align: center;
+			padding-bottom: 10px;
+			font-size: 4em;
+			font-weight: 400;
+		}
 	}
 	.pages {
 		margin: 0;
@@ -110,5 +148,29 @@ body, html {
 		}
 	}
 }
+.ga-container {
+	width: 100%;
+	height: 50%;
+	position: absolute;
+	top: 50%;
+	left: 0;
+	overflow: hidden;
+	display: block;
+	box-sizing: border-box;
 
+	h1 {
+		display: block;
+		width: 100%;
+		background-color: #1F3442;
+		text-align: center;
+		margin: 0;
+		padding: 10px 0;
+		font-size: 4em;
+		font-weight: 200;
+	}
+
+	#auth-button {
+		// display: block;
+	}
+}
 

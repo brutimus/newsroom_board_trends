@@ -19,16 +19,26 @@ function chartbeat_board() {
   function my(selection) {
 
     /* ========== VARIABLES & FUNCTIONS ========== */
-    var api_url = 'http://api.chartbeat.com/live/toppages/v3/?apikey={0}&host={1}&limit=50;';
+    var pages_url = 'http://api.chartbeat.com/live/toppages/v3/?apikey={0}&host={1}&limit=50;',
+        summary_url = 'http://api.chartbeat.com/live/quickstats/v3/?apikey={0}&host={1}';
 
+    function draw_numbers(error, data){
+        numbers_container.datum(data);
+        update_numerical_cell(numbers_container, '.readers', 'd.people');
+        update_percent_cell(numbers_container, '.desktop', 'd.platform.d', 'd.people');
+        update_percent_cell(numbers_container, '.mobile', 'd.platform.m', 'd.people');
+        update_numerical_cell(numbers_container, '.social', 'd.social');
+        update_numerical_cell(numbers_container, '.search', 'd.search');
+        update_time_cell(numbers_container, '.engaged', 'd.engaged_time.avg');
+    }
 
-    function draw_pages(data){
+    function draw_pages(error, data){
         /* ========== SETUP UI ========== */
 
         var pages = list_container.selectAll('tr')
             .data(data.pages.filter(function(d){
                 return d.path.split('/').length > 4
-            }), function(d){return d.title});
+            }), function(d1){return d1.title});
         
         // REMOVE ELEMENTS
         pages.exit()
@@ -98,11 +108,10 @@ function chartbeat_board() {
         selection.select(c)
             .transition().duration(1000)
             .tween('text', function(d){
-                var i = d3.interpolate(this.textContent, eval(path)),
-                    self = this;
+                var i = d3.interpolate(this.textContent, eval(path));
                 return function(t){
-                    self.textContent = Math.round(i(t));
-                }
+                    this.textContent = Math.round(i(t));
+                }.bind(this)
             });
     }
     function update_percent_cell(selection, c, path_num, path_denom){
@@ -113,11 +122,10 @@ function chartbeat_board() {
                     i = d3.interpolate(
                         old,
                         Math.round((eval(path_num) / eval(path_denom)) * 100)
-                    ),
-                    self = this;
+                    );
                 return function(t){
-                    self.textContent = Math.round(i(t)) + '%';
-                }
+                    this.textContent = Math.round(i(t)) + '%';
+                }.bind(this)
             });
     }
     function update_time_cell(selection, c, path){
@@ -125,20 +133,14 @@ function chartbeat_board() {
             .transition().duration(1000)
             .tween('text', function(d){
                 var time = this.textContent.split(':'),
-                    i = d3.interpolate(parseInt(time[0])*60 + parseInt(time[1]), eval(path)),
-                    self = this;
+                    i = d3.interpolate(parseInt(time[0])*60 + parseInt(time[1]), eval(path));
                 return function(t){
-                    self.textContent = Math.floor(i(t)/60) + ':' + ('00' + Math.round(i(t) % 60)).slice(-2);
-                }
+                    this.textContent = Math.floor(i(t)/60) + ':' + ('00' + Math.round(i(t) % 60)).slice(-2);
+                }.bind(this)
             });
     }
 
-    function data_ready(error, cb) {
-        draw_pages(cb);
-    }
-
-
-    /* ========== SETUP SVG ========== */
+    /* ========== SETUP CONTAINER ========== */
 
     var numbers_container = selection.select('.numbers'),
         list_container = selection.select('.pages tbody'),
@@ -148,15 +150,14 @@ function chartbeat_board() {
     /* ========== RUNTIME ========== */
     /* ============================= */
 
-    d3.json(api_url.format(api_key, domain_name), data_ready);
-    setInterval(
-        d3.json,
-        3000,
-        api_url.format(api_key, domain_name),
-        data_ready
-    );
-
-
+    d3.json(pages_url.format(api_key, domain_name), draw_pages);
+    d3.json(summary_url.format(api_key, domain_name), draw_numbers);
+    setInterval(function(){
+        if (!document.hidden) {
+            d3.json(pages_url.format(api_key, domain_name), draw_pages);
+            d3.json(summary_url.format(api_key, domain_name), draw_numbers);
+        }
+    }, 3000);
   }
 
   my.api_key = function(value) {

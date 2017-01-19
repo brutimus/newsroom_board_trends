@@ -11,49 +11,75 @@ body {
 body,
 html {
   width: 1080px;
-  height: 960px;
-  overflow: hidden;
+  height: 1920px;
   position: relative;
 }
-.container {
+.cb-container {
   width: 100%;
-  height: 100%;
+  height: 50%;
   position: absolute;
   top: 0;
   left: 0;
   overflow: hidden;
 }
-.container .numbers {
+.cb-container .numbers {
   height: 200px;
   background-color: #1F3442;
 }
-.container .pages {
+.cb-container .numbers table {
+  border-collapse: collapse;
+  border-spacing: 0px;
+}
+.cb-container .numbers .numbers-col {
+  width: 360px;
+}
+.cb-container .numbers .data-row {
+  height: 75px;
+  vertical-align: top;
+}
+.cb-container .numbers .label-row {
+  height: 20px;
+  vertical-align: bottom;
+}
+.cb-container .numbers .label-cell {
+  text-align: center;
+  text-transform: uppercase;
+  color: #9dafbc;
+  font-weight: 400;
+}
+.cb-container .numbers .data-cell {
+  text-align: center;
+  padding-bottom: 10px;
+  font-size: 4em;
+  font-weight: 400;
+}
+.cb-container .pages {
   margin: 0;
   padding: 0;
   border-collapse: collapse;
   border-spacing: 0px;
 }
-.container .pages td,
-.container .pages th {
+.cb-container .pages td,
+.cb-container .pages th {
   padding: 0 5px;
 }
-.container .pages thead {
+.cb-container .pages thead {
   text-transform: uppercase;
   font-size: .5em;
 }
-.container .pages thead tr {
+.cb-container .pages thead tr {
   background-color: #446780;
   height: 40px;
 }
-.container .pages thead th {
+.cb-container .pages thead th {
   color: #9dafbc !important;
   font-weight: 400 !important;
   line-height: 40px;
 }
-.container .pages thead .title {
+.cb-container .pages thead .title {
   text-align: center;
 }
-.container .pages tbody tr {
+.cb-container .pages tbody tr {
   height: 60px;
   -webkit-transition: -webkit-transform 200ms;
   transition: transform 600ms;
@@ -61,10 +87,10 @@ html {
   transform: translateY(1000px);
   overflow: auto;
 }
-.container .pages tbody td {
+.cb-container .pages tbody td {
   line-height: 60px;
 }
-.container .pages tr {
+.cb-container .pages tr {
   position: absolute;
   font-size: 2em;
   font-weight: 300;
@@ -78,33 +104,53 @@ html {
   width: 100%;
   line-height: 1.5em;
 }
-.container .pages tr .desktop,
-.container .pages tr .mobile,
-.container .pages tr .concurrent,
-.container .pages tr .social,
-.container .pages tr .search,
-.container .pages tr .engaged {
+.cb-container .pages tr .desktop,
+.cb-container .pages tr .mobile,
+.cb-container .pages tr .concurrent,
+.cb-container .pages tr .social,
+.cb-container .pages tr .search,
+.cb-container .pages tr .engaged {
   color: #96B8CB;
   margin-right: 15px;
   font-weight: 600;
 }
-.container .pages tr .concurrent {
+.cb-container .pages tr .concurrent {
   width: 95px;
   text-align: right;
   padding-right: 10px;
 }
-.container .pages tr .desktop,
-.container .pages tr .mobile,
-.container .pages tr .social,
-.container .pages tr .search,
-.container .pages tr .engaged {
+.cb-container .pages tr .desktop,
+.cb-container .pages tr .mobile,
+.cb-container .pages tr .social,
+.cb-container .pages tr .search,
+.cb-container .pages tr .engaged {
   width: 75px;
   text-align: center;
 }
-.container .pages tr .title {
+.cb-container .pages tr .title {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   width: 500px;
   max-width: 500px;
+}
+.ga-container {
+  width: 100%;
+  height: 50%;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  overflow: hidden;
+  display: block;
+  box-sizing: border-box;
+}
+.ga-container h1 {
+  display: block;
+  width: 100%;
+  background-color: #1F3442;
+  text-align: center;
+  margin: 0;
+  padding: 10px 0;
+  font-size: 4em;
+  font-weight: 200;
 }
