@@ -7,20 +7,109 @@ $(document).ready(function () {
     SCOPES = ['https://www.googleapis.com/auth/analytics.readonly'];
     GA_VIEW_ID = getUrlParameter('ga_view_id');
 
-    document.getElementsByName('google-signin-client_id')[0].setAttribute('content', GA_CLIENT_ID)
+    document.getElementsByName('google-signin-client_id')[0].setAttribute(
+        'content', GA_CLIENT_ID);
 
 
     // CHARTBEAT ===============================================================
 
-    var chart = chartbeat_board()
-        .api_key(getUrlParameter('api_key'))
-        .domain_name(getUrlParameter('domain'));
-    d3.select('.cb-container').call(chart);
+    var CB_API_KEY = getUrlParameter('api_key'),
+        CB_DOMAIN = getUrlParameter('domain'),
+        CB_TRAFFIC_SERIES_URL = 'http://api.chartbeat.com/historical/traffic/series/?apikey={0}&host={1}&start={2}&end={3}&frequency={4}&fields=people,social';
+    
+    var svg = d3.select(".past-seven-days"),
+        margin = {top: 20, right: 20, bottom: 30, left: 50},
+        width = +svg.attr("width") - margin.left - margin.right,
+        height = +svg.attr("height") - margin.top - margin.bottom,
+        g = svg.append("g").attr(
+            "transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+    
+    var x = d3.scaleTime().rangeRound([0, width]),
+        y = d3.scaleLinear().rangeRound([height, 0]),
+        z = d3.scaleOrdinal(d3.schemeCategory10),
+        stack = d3.stack(),
+        keys = ['social', 'people'];
+    
+    var area = d3.area()
+        .x(function(d) { return x(d.data.time); })
+        .y0(function(d) { return y(d[0]); })
+        .y1(function(d) { return y(d[1]); });
+    
+
+
+    d3.json(CB_TRAFFIC_SERIES_URL.format(
+        CB_API_KEY,
+        CB_DOMAIN,
+        '2017-01-18%2003:00:00',
+        '2017-01-25%2002:59:59',
+        60), function(error, response) {
+        if (error) throw error;
+        var start_time = +response['data']['start'],
+            end_time = +response['data']['end'],
+            frequency = +response['data']['frequency'],
+            data = response['data']['spokesman.com']['series']['people'].map(function(d, i){
+                return {
+                    'time': new Date((start_time + (60 * 60 * i)) * 1000),
+                    'people': +d,
+                    'social': +response['data']['spokesman.com']['series']['social'][i]}
+            });
+        // console.log(data);
+
+        x.domain(d3.extent(data, function(d) { return d.time; }));
+        y.domain([0, d3.max(data, function(d) { return d['people']; })]);
+        z.domain(keys);
+        stack.keys(keys);
+        console.log(stack(data))
+        // area.y0(y(0));
+
+        // g.append("path")
+        //     .datum(data)
+        //     .attr("fill", "steelblue")
+        //     .attr("d", area);
+    
+        var layer = g.selectAll('.layer')
+            .data(stack(data))
+            .enter().append('g')
+                .attr('class', 'layer');
+        
+        layer.append('path')
+            .attr('class', 'area')
+            .style('fill', function(d){ return z(d.key); })
+            .attr('d', area);
+
+        g.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+        g.append("g")
+            .call(d3.axisLeft(y))
+            .append("text")
+            .attr("fill", "#FFF")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", "0.71em")
+            .attr("text-anchor", "end")
+            .text("Concurrents");
+        });
+    });
 
     // GOOGLE ANALYTICS ========================================================
 
 
-});
+// });
+
+if (!String.prototype.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) {
+      return typeof args[number] != 'undefined'
+        ? args[number]
+        : match
+      ;
+    });
+  };
+}
 
 var getUrlParameter = function getUrlParameter(sParam) {
     var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -39,367 +128,4 @@ var getUrlParameter = function getUrlParameter(sParam) {
 
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-function queryReports() {
-    $('.g-signin2').hide();
-    doQuery();
-    setInterval(doQuery, 3600000);
-
-    
-
-}
-
-function doQuery(){
-    gapi.client.request({
-        path: '/v4/reports:batchGet',
-        root: 'https://analyticsreporting.googleapis.com/',
-        method: 'POST',
-        body: {
-            reportRequests: [
-            {
-                viewId: GA_VIEW_ID,
-                samplingLevel: 'LARGE',
-                dateRanges: [
-                {
-                    startDate: 'yesterday',
-                    endDate: 'yesterday'
-                }
-                ],
-                dimensions: [
-                    {
-                        name: 'ga:pagePath'
-                    }
-                ],
-                dimensionFilterClauses: [
-                    {
-                        filters: [
-                            {
-                                dimensionName: 'ga:pagePath',
-                                expressions: [
-                                '^/(blogs/[a-z\-]+|[a-z\-]+/stories)/[0-9]{4}/'
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                metrics: [
-                {
-                    expression: 'ga:pageviews'
-                }
-                ],
-                orderBys: [
-                {
-                    fieldName: 'ga:pageviews',
-                    sortOrder: 'DESCENDING'
-                }
-                ],
-                pageSize: 1
-            },{
-                viewId: GA_VIEW_ID,
-                samplingLevel: 'LARGE',
-                dateRanges: [
-                {
-                    startDate: 'yesterday',
-                    endDate: 'yesterday'
-                }
-                ],
-                dimensions: [
-                    {
-                        name: 'ga:pagePath'
-                    }
-                ],
-                dimensionFilterClauses: [
-                    {
-                        filters: [
-                            {
-                                dimensionName: 'ga:pagePath',
-                                expressions: [
-                                '^/galleries/'
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                metrics: [
-                {
-                    expression: 'ga:pageviews'
-                }
-                ],
-                orderBys: [
-                {
-                    fieldName: 'ga:pageviews',
-                    sortOrder: 'DESCENDING'
-                }
-                ],
-                pageSize: 1
-            },{
-                viewId: GA_VIEW_ID,
-                samplingLevel: 'LARGE',
-                dateRanges: [
-                {
-                    startDate: 'yesterday',
-                    endDate: 'yesterday'
-                }
-                ],
-                dimensions: [
-                    {
-                        name: 'ga:medium'
-                    },{
-                        name: 'ga:pagePath'
-                    }
-                ],
-                dimensionFilterClauses: [
-                    {
-                        operator: 'AND',
-                        filters: [
-                            {
-                                dimensionName: 'ga:pagePath',
-                                expressions: [
-                                '^/(blogs/[a-z\-]+|[a-z\-]+/stories)/[0-9]{4}/'
-                                ]
-                            },{
-                                dimensionName: 'ga:medium',
-                                operator: 'EXACT',
-                                expressions: [
-                                    'organic'
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                metrics: [
-                {
-                    expression: 'ga:pageviews'
-                }
-                ],
-                orderBys: [
-                {
-                    fieldName: 'ga:pageviews',
-                    sortOrder: 'DESCENDING'
-                }
-                ],
-                pageSize: 1
-            },{
-                viewId: GA_VIEW_ID,
-                samplingLevel: 'LARGE',
-                dateRanges: [
-                {
-                    startDate: 'yesterday',
-                    endDate: 'yesterday'
-                }
-                ],
-                metrics: [
-                {
-                    expression: 'ga:pageviews'
-                }
-                ],
-                pageSize: 1
-            },{
-                viewId: GA_VIEW_ID,
-                samplingLevel: 'LARGE',
-                dateRanges: [
-                {
-                    startDate: 'yesterday',
-                    endDate: 'yesterday'
-                }
-                ],
-                metrics: [
-                {
-                    expression: 'ga:avgSessionDuration'
-                }
-                ],
-                pageSize: 1
-            }
-            ]
-        }
-        }).then(function(response){
-            // console.log(response);
-            $('#yesterdays-top-story').text(
-                response.result.reports[0].data.rows[0].dimensions[0]);
-            $('#yesterdays-top-gallery').text(
-                response.result.reports[1].data.rows[0].dimensions[0]);
-            $('#yesterdays-top-search').text(
-                response.result.reports[2].data.rows[0].dimensions[1]);
-            $('#yesterdays-pageviews').text(
-                numberWithCommas(response.result.reports[3].data.rows[0].metrics[0].values[0]));
-            var d = response.result.reports[4].data.rows[0].metrics[0].values[0];
-            $('#yesterdays-duration').text(Math.floor(d/60) + ':' + ('00' + Math.round(d % 60)).slice(-2));
-        }, console.error.bind(console));
-
-    gapi.client.request({
-        path: '/v4/reports:batchGet',
-        root: 'https://analyticsreporting.googleapis.com/',
-        method: 'POST',
-        body: {
-            reportRequests: [
-            {
-                viewId: GA_VIEW_ID,
-                samplingLevel: 'LARGE',
-                dateRanges: [
-                {
-                    startDate: 'today',
-                    endDate: 'today'
-                }
-                ],
-                dimensions: [
-                    {
-                        name: 'ga:pagePath'
-                    }
-                ],
-                dimensionFilterClauses: [
-                    {
-                        filters: [
-                            {
-                                dimensionName: 'ga:pagePath',
-                                expressions: [
-                                '^/(blogs/[a-z\-]+|[a-z\-]+/stories)/[0-9]{4}/'
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                metrics: [
-                {
-                    expression: 'ga:pageviews'
-                }
-                ],
-                orderBys: [
-                {
-                    fieldName: 'ga:pageviews',
-                    sortOrder: 'DESCENDING'
-                }
-                ],
-                pageSize: 1
-            },{
-                viewId: GA_VIEW_ID,
-                samplingLevel: 'LARGE',
-                dateRanges: [
-                {
-                    startDate: 'today',
-                    endDate: 'today'
-                }
-                ],
-                dimensions: [
-                    {
-                        name: 'ga:pagePath'
-                    }
-                ],
-                dimensionFilterClauses: [
-                    {
-                        filters: [
-                            {
-                                dimensionName: 'ga:pagePath',
-                                expressions: [
-                                '^/galleries/'
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                metrics: [
-                {
-                    expression: 'ga:pageviews'
-                }
-                ],
-                orderBys: [
-                {
-                    fieldName: 'ga:pageviews',
-                    sortOrder: 'DESCENDING'
-                }
-                ],
-                pageSize: 1
-            },{
-                viewId: GA_VIEW_ID,
-                samplingLevel: 'LARGE',
-                dateRanges: [
-                {
-                    startDate: 'today',
-                    endDate: 'today'
-                }
-                ],
-                dimensions: [
-                    {
-                        name: 'ga:medium'
-                    },{
-                        name: 'ga:pagePath'
-                    }
-                ],
-                dimensionFilterClauses: [
-                    {
-                        operator: 'AND',
-                        filters: [
-                            {
-                                dimensionName: 'ga:pagePath',
-                                expressions: [
-                                '^/(blogs/[a-z\-]+|[a-z\-]+/stories)/[0-9]{4}/'
-                                ]
-                            },{
-                                dimensionName: 'ga:medium',
-                                operator: 'EXACT',
-                                expressions: [
-                                    'organic'
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                metrics: [
-                {
-                    expression: 'ga:pageviews'
-                }
-                ],
-                orderBys: [
-                {
-                    fieldName: 'ga:pageviews',
-                    sortOrder: 'DESCENDING'
-                }
-                ],
-                pageSize: 1
-            },{
-                viewId: GA_VIEW_ID,
-                samplingLevel: 'LARGE',
-                dateRanges: [
-                {
-                    startDate: 'today',
-                    endDate: 'today'
-                }
-                ],
-                metrics: [
-                {
-                    expression: 'ga:pageviews'
-                }
-                ],
-                pageSize: 1
-            },{
-                viewId: GA_VIEW_ID,
-                samplingLevel: 'LARGE',
-                dateRanges: [
-                {
-                    startDate: 'today',
-                    endDate: 'today'
-                }
-                ],
-                metrics: [
-                {
-                    expression: 'ga:avgSessionDuration'
-                }
-                ],
-                pageSize: 1
-            }
-            ]
-        }
-        }).then(function(response){
-            // console.log(response);
-            $('#todays-top-story').text(
-                response.result.reports[0].data.rows[0].dimensions[0]);
-            $('#todays-top-gallery').text(
-                response.result.reports[1].data.rows[0].dimensions[0]);
-            $('#todays-top-search').text(
-                response.result.reports[2].data.rows[0].dimensions[1]);
-            $('#todays-pageviews').text(
-                numberWithCommas(response.result.reports[3].data.rows[0].metrics[0].values[0]));
-            var d = response.result.reports[4].data.rows[0].metrics[0].values[0];
-            $('#todays-duration').text(Math.floor(d/60) + ':' + ('00' + Math.round(d % 60)).slice(-2));
-        }, console.error.bind(console));
 }
