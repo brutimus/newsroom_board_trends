@@ -2,6 +2,7 @@
 <html class="no-js" lang="">
     <head>
         <meta charset="utf-8">
+        <meta http-equiv="refresh" content="600">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>Chartbeat Dashboard</title>
         <meta name="description" content="">
@@ -13,9 +14,61 @@
 
     </head>
     <body>
-        <div class="cb-container">
-            <svg class="past-seven-days" width="1080" height="200"></svg>
+        <div class="ga-container">
+            <div class="title-container">
+                <h1>Five day traffic sources</h1>
+            </div>
+            <div class="svg-container">
+                <svg class="sources-past-five-days" width="1080" height="295"></svg>
+            </div>
+            <div class="title-container">
+                <h1>Five day traffic by device</h1>
+            </div>
+            <div class="svg-container">
+                <svg class="devices-past-five-days" width="1080" height="295"></svg>
+            </div>
         </div>
+        <div class="site-trends-container side-by-side">
+            <div class="title-container">
+                <h1>Yesterday's Standings</h1>
+            </div>
+            <div class="yesterday-published sbs-box two-up lbar-list">
+                <div class="lbar"></div>
+            </div>
+            <div class="yesterday-pageviews sbs-box two-up lbar-list">
+                <div class="lbar"></div>
+            </div>
+        </div>
+        <div class="twitter-trends-container side-by-side">
+            <div class="title-container">
+                <h1>Twitter Trending Topics</h1>
+            </div>
+            <div class="twitter-trends twitter-trends-seattle sbs-box three-up lbar-list">
+                <div class="lbar"></div>
+            </div>
+            <div class="twitter-trends twitter-trends-national sbs-box three-up lbar-list">
+                <div class="lbar"></div>
+            </div>
+            <div class="twitter-trends twitter-trends-global sbs-box three-up lbar-list">
+                <div class="lbar"></div>
+            </div>
+        </div>
+        <div class="google-trends-container side-by-side">
+            <div class="title-container">
+                <h1>National Google Search Trends</h1>
+            </div>
+            <div class="google-trends-0-6 sbs-box three-up lbar-list">
+                <div class="lbar"></div>
+            </div>
+            <div class="google-trends-6-12 sbs-box three-up lbar-list">
+                <div class="lbar"></div>
+            </div>
+            <div class="google-trends-12-18 sbs-box three-up lbar-list">
+                <div class="lbar"></div>
+            </div>
+        </div>
+        <div class="g-signin2" data-onsuccess="queryReports"></div>
+        <script src="js/min/codebird-min.js"></script>
         <script src="js/min/main-min.js"></script>
         <script src="https://apis.google.com/js/client:platform.js"></script>
     </body>
