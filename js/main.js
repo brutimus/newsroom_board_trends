@@ -190,21 +190,22 @@ function trafficSourcePastWeek(selector, start_date, end_date, label){
             }]
         }
         }).then(function(response){
-            // console.log(response);
             var tempdata = {},
                 data = [];
             $.each(response.result.reports[0].data.rows, function(i, d){
-                var row = tempdata[d.dimensions[0]] = tempdata[d.dimensions[0]] || {};
+                var row = tempdata[d.dimensions[0]] = tempdata[d.dimensions[0]] || {'sessions':0, 'search':0, 'social': 0, 'other':0};
                 if (d.dimensions[1] == "No") {
-                    row.sessions = +d.metrics[0].values[0];
-                    row.search = +d.metrics[0].values[1];
+                    row.sessions = defaultZero(d.metrics[0].values[0]);
+                    row.search = defaultZero(d.metrics[0].values[1]);
                 } else {
-                    row.social = +d.metrics[0].values[0];
+                    row.social = defaultZero(d.metrics[0].values[0]);
+                    row.sessions = (row.sessions || 0) + row.social;
                 }
             });
 
             $.each(tempdata, function(k, v){
                 v.date = parseDate(k);
+                // console.log( v.date, v.sessions, v.social, v.search)
                 v.other = v.sessions - v.social - v.search;
                 data.push(v);
             });
@@ -343,17 +344,17 @@ function trafficDevicesPastWeek(selector, start_date, end_date, label){
             var lineD = d3.line()
                 .curve(d3.curveMonotoneX)
                 .x(function(d){ return x(d.date)})
-                .y(function(d){ return y(d.desktop)});
+                .y(function(d){ return y(defaultZero(d.desktop))});
             
             var lineM = d3.line()
                 .curve(d3.curveMonotoneX)
                 .x(function(d){ return x(d.date)})
-                .y(function(d){ return y(d.mobile)});
+                .y(function(d){ return y(defaultZero(d.mobile))});
             
             var lineT = d3.line()
                 .curve(d3.curveMonotoneX)
                 .x(function(d){ return x(d.date)})
-                .y(function(d){ return y(d.tablet)});
+                .y(function(d){ return y(defaultZero(d.tablet))});
 
             x.domain(d3.extent(data, function(d) { return d.date; }));
             y.domain([0, d3.max(data, function(d) { return d3.max([d.tablet, d.mobile, d.desktop]) + 500 })]);
@@ -456,12 +457,19 @@ function yesterdayPublished(selector, start_date, end_date, label){
                 ],
                 dimensionFilterClauses: [
                     {
+                        operator: 'AND',
                         filters: [
                             {
                                 dimensionName: 'ga:dimension5',
                                 operator: 'EXACT',
                                 expressions: [
                                     dateFormat(start_date)
+                                ]
+                            },
+                            {
+                                dimensionName: 'ga:pagePath',
+                                expressions: [
+                                '^/(blogs/[a-z\-]+|stories)/[0-9]{4}/'
                                 ]
                             }
                         ]
@@ -527,7 +535,7 @@ function yesterdayPageviews(selector, start_date, end_date, label){
                             {
                                 dimensionName: 'ga:pagePath',
                                 expressions: [
-                                '^/(blogs/[a-z\-]+|[a-z\-]+/stories)/[0-9]{4}/'
+                                '^/(blogs/[a-z\-]+|stories)/[0-9]{4}/'
                                 ]
                             }
                         ]
@@ -546,7 +554,7 @@ function yesterdayPageviews(selector, start_date, end_date, label){
             }]
         }
         }).then(function(response){
-            // console.log(response);
+            console.log(response);
             var data = {};
             $.each(response.result.reports[0].data.rows, function(i, d){
                 var row = data[d.dimensions[0]] = data[d.dimensions[0]] || {};
@@ -604,4 +612,8 @@ var getUrlParameter = function getUrlParameter(sParam) {
 
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function defaultZero(x){
+    return +(typeof x === "undefined" ? 0 : x);
 }
